@@ -103,4 +103,3 @@ d = read.csv("atm_transactions_simulated.csv")
 View(d)
 
 
-
