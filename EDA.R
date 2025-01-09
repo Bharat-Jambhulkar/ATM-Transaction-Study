@@ -88,7 +88,39 @@ length(t4)
 
 t = which(data$Time>=9 & data$Time<=21)
 length(t)
+
 "
 if we divide data into 4 sections then we can say customer arrive at 
 same rate but during night how this much of customers are coming?
+"
+
+## To estimate find the distribution of transaction amount 
+
+"
+Ealier we note that first 10 days have diff dist, 11-20 days have diff and 
+last 10 days have diff dist.
+"
+## Function to get the marginals distribution
+"
+Since amount of transaction can be treated as continuos variable we can
+use the following function
+"
+
+
+distributions <- c("exp", "gamma", "weibull", "unif","lnorm")
+x = data$Amount_withdrawal[d11]
+aic.vec = c()
+for(i in 1:length(distributions)){
+  fit = fitdist(x,distributions[i],method = "mle")
+  aic.vec[i] = fit$aic
+}
+
+d1 = which(data$Day<=10)
+d11 = which(data$Day>=11 & data$Day<=20)
+d21 = which(data$Day>=21)
+
+dist1 = get.marginal(data$Amount_withdrawal[d1])
+
+"
+Facing an issue in fitting gamma distribution. 
 "
