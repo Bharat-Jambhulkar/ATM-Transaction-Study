@@ -106,21 +106,30 @@ Since amount of transaction can be treated as continuos variable we can
 use the following function
 "
 
-
-distributions <- c("exp", "gamma", "weibull", "unif","lnorm")
-x = data$Amount_withdrawal[d11]
-aic.vec = c()
-for(i in 1:length(distributions)){
-  fit = fitdist(x,distributions[i],method = "mle")
-  aic.vec[i] = fit$aic
+getmarginal = function(x){
+  library(fitdistrplus)
+  distributions <- c("weibull", "unif","lnorm")
+  aic.vec = c()
+  for(i in 1:length(distributions)){
+    fit = fitdist(x,distributions[i],method = "mle")
+    aic.vec[i] = fit$aic
+  }
+  fit = fitdist(x,distributions[which.min(aic.vec)],method = "mle")
+  return(fit)
 }
 
 d1 = which(data$Day<=10)
 d11 = which(data$Day>=11 & data$Day<=20)
 d21 = which(data$Day>=21)
 
-dist1 = get.marginal(data$Amount_withdrawal[d1])
+dist1 = getmarginal(data$Amount_withdrawal[d1])
+dist11 = getmarginal(data$Amount_withdrawal[d11])
+dist21 = getmarginal(data$Amount_withdrawal[d21])
 
 "
 Facing an issue in fitting gamma distribution. 
+"
+
+"
+current funtion is identifying lnorm 
 "
