@@ -133,3 +133,39 @@ Facing an issue in fitting gamma distribution.
 "
 current funtion is identifying lnorm 
 "
+
+getM = function(x){
+  library(fitdistrplus)
+  dist = c("exp","gamma","weibull")
+  aic.vec = c()
+  for(i in 1:length(dist)){
+    if(dist[i]=="gamma"){
+    s = (mean(x))^2/var(x);r=mean(x)/var(x)
+    start_params <- list(shape = s, rate = r)
+    fit = fitdist(x,distr = dist[i],start=start_params)
+    aic.vec[i] = fit$aic
+  }
+  if(dist[i]=="exp"){
+    mx = 1/mean(x)
+    start_par = list(rate=mx)
+    fit = fitdist(x,distr = dist[i],start=start_par)
+    aic.vec[i] = fit$aic
+  }
+  if(dist[i]=="weibull"){
+    m = mean(log(x));v=var(log(x))
+    fit = fitdist(x,distr = dist[i],start=list(shape=(1.2/sqrt(v)),scale=exp(m+(0.572/(1.2/sqrt(v))))))
+    aic.vec[i] = fit$aic
+  }
+  }
+  return(dist[which.min(aic.vec)])
+}
+
+y = rgamma(100,shape=3,rate=5)
+getM(y)
+
+par = list(shape=4,rate=4)
+par$shape
+
+"
+Currently the function is using fitdistplus. Target is to use fitdistr only.
+"
