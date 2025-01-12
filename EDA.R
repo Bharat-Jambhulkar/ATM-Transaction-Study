@@ -100,23 +100,11 @@ same rate but during night how this much of customers are coming?
 Ealier we note that first 10 days have diff dist, 11-20 days have diff and 
 last 10 days have diff dist.
 "
-## Function to get the marginals distribution
+
 "
 Since amount of transaction can be treated as continuos variable we can
 use the following function
 "
-
-getmarginal = function(x){
-  library(fitdistrplus)
-  distributions <- c("weibull", "unif","lnorm")
-  aic.vec = c()
-  for(i in 1:length(distributions)){
-    fit = fitdist(x,distributions[i],method = "mle")
-    aic.vec[i] = fit$aic
-  }
-  fit = fitdist(x,distributions[which.min(aic.vec)],method = "mle")
-  return(fit)
-}
 
 d1 = which(data$Day<=10)
 d11 = which(data$Day>=11 & data$Day<=20)
@@ -126,46 +114,59 @@ dist1 = getmarginal(data$Amount_withdrawal[d1])
 dist11 = getmarginal(data$Amount_withdrawal[d11])
 dist21 = getmarginal(data$Amount_withdrawal[d21])
 
-"
-Facing an issue in fitting gamma distribution. 
-"
-
-"
-current funtion is identifying lnorm 
-"
-
-getM = function(x){
-  library(fitdistrplus)
-  dist = c("exp","gamma","weibull")
-  aic.vec = c()
-  for(i in 1:length(dist)){
-    if(dist[i]=="gamma"){
-    s = (mean(x))^2/var(x);r=mean(x)/var(x)
-    start_params <- list(shape = s, rate = r)
-    fit = fitdist(x,distr = dist[i],start=start_params)
-    aic.vec[i] = fit$aic
-  }
-  if(dist[i]=="exp"){
-    mx = 1/mean(x)
-    start_par = list(rate=mx)
-    fit = fitdist(x,distr = dist[i],start=start_par)
-    aic.vec[i] = fit$aic
-  }
-  if(dist[i]=="weibull"){
-    m = mean(log(x));v=var(log(x))
-    fit = fitdist(x,distr = dist[i],start=list(shape=(1.2/sqrt(v)),scale=exp(m+(0.572/(1.2/sqrt(v))))))
-    aic.vec[i] = fit$aic
-  }
-  }
-  return(dist[which.min(aic.vec)])
-}
-
-y = rgamma(100,shape=3,rate=5)
-getM(y)
-
-par = list(shape=4,rate=4)
-par$shape
 
 "
 Currently the function is using fitdistplus. Target is to use fitdistr only.
 "
+
+## Function to find best fit marginal distribution from "exponential","gamma","chi-squared","log-normal","weibull".
+find.marginal = function(x,criteria){
+  n=length(x)
+  suppressWarnings({
+  if(n>1 & class(x)=="numeric"){
+    dist = c("exponential","gamma","chi-squared","log-normal","weibull")
+    aic_vec = c()
+    bic_vec = c()
+    for(i in 1:length(dist)){
+      if(dist[i]=="chi-squared"){
+        strlist = list(df=mean(x))
+        k = length(strlist)
+        fit = fitdistr(x,densfun = dist[i],start = strlist)
+        aic_vec[i] = 2*(k-fit$loglik)
+        bic_vec[i] = k*log(n)-2*fit$loglik
+      }else{
+        fit = fitdistr(x,densfun = dist[i])
+        k = length(fit$estimate)
+        aic_vec[i] = 2*(k-fit$loglik)
+        bic_vec[i] = k*log(n)-2*fit$loglik
+      }
+    }
+    if(class(criteria)=="character"){
+    if(criteria=="AIC"){
+      if(dist[which.min(aic_vec)]=="chi-squared"){
+        strlist = list(df=mean(x))  
+        fit = fitdistr(x,densfun = dist[which.min(aic_vec)],start = strlist)
+        return(list(dist[which.min(aic_vec)],fit$estimate))
+      }else{
+        fit = fitdistr(x,densfun = dist[which.min(aic_vec)])
+        return(list(dist[which.min(aic_vec)],fit$estimate))
+      }
+    }else{
+      if(dist[which.min(bic_vec)]=="chi-squared"){
+        strlist = list(df=mean(x))  
+        fit = fitdistr(x,densfun = dist[which.min(bic_vec)],start = strlist)
+        return(list(dist[which.min(bic_vec)],fit$estimate))
+      }else{
+        fit = fitdistr(x,densfun = dist[which.min(bic_vec)])
+        return(list(dist[which.min(bic_vec)],fit$estimate))
+      }
+    }
+  }else(paste("Expected criteria is not character object."))  
+  }else(paste("vector length must > 1 OR class is not numeric."))
+  })
+}
+
+y = rexp(1000,4)
+
+
+find.marginal(y,"BIC")
