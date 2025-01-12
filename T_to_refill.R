@@ -5,7 +5,7 @@ timeFun = function(x){
     num_tran = c(0,0)
     a=1
     sum = count=0
-    tresh = 100000 #capacity of ATM
+    tresh = 300000 #capacity of ATM
     for(i in 1:length(x)){
       sum  = sum+x[i]
       count = count+1
@@ -45,4 +45,42 @@ for(i in 2:30){
   w = which(data$Day == i)
   newdata$Time[w] = newdata$Time[w]+a[i-1]
 }
-View(newdata)
+newdata = newdata[order(newdata$Time), ]
+
+## write.csv(newdata,file = "newdata.csv") only for testing.
+stamps = timeFun(newdata$Amount_withdrawal)
+
+View(stamps)
+
+num_hours = c()
+nst = cumsum(stamps[,2])
+for(i in 1:length(nst)){
+  w1 = nst[i];w2 = nst[i+1]
+  num_hours[i] = newdata$Time[w2]-newdata$Time[w1]
+}
+num_hours = num_hours[-length(num_hours)]
+
+length(num_hours)
+length(nst)
+nst
+
+## For first 10 days
+newdata$Day[3093]
+w = which(nst==3093)
+w
+
+srthrs = sort(num_hours[1:28])
+quantile(srthrs,probs = 0.05)
+## fill every 5 hrs.
+
+## for 11-20 days
+srthrs=sort(num_hours[28:48])
+quantile(srthrs,probs = 0.05)
+
+## fill every 6:30 hrs.
+
+
+srthrs=sort(num_hours[49:57])
+plot(density(srthrs))
+quantile(srthrs,probs = 0.05)
+## For last 10 days of the months fill every 22.46 hrs. 24hrs can also be work. 
