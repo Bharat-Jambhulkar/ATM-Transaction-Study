@@ -1,11 +1,11 @@
 ## Function to calculate the number of transaction after which ATM needs to refill.
 
-timeFun = function(x){
+timeFun = function(x,limit){
   if(class(x)=="integer"){
     num_tran = c(0,0)
     a=1
     sum = count=0
-    tresh = 300000 #capacity of ATM
+    tresh = limit #capacity of ATM
     for(i in 1:length(x)){
       sum  = sum+x[i]
       count = count+1
