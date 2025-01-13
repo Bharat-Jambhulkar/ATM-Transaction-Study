@@ -9,4 +9,8 @@ Currently working on defining a function to determine the best marginal fit alon
 
 Update: The "find.marginal" function was completed to get the best fit marginal from the constrained space.
 
-Added T_to_refill.R to get the number of transactions till the next refill is needed. Next is to find hours between the refills. 
+Added T_to_refill.R to get the number of transactions till the next refill is needed. Next, find the hours between the refills. 
+
+Updated code to find the hours required to refill the machine.
+
+Next, I have two targets: 1) Create a good report of this study. 2) Write clean code where all functions will be in one place and then the analysis part. 
