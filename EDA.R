@@ -3,6 +3,8 @@
 ## Also we will deal with problem of how often we should refill the machine
 ## with cash 
 
+source("source.R") #Import functions to written in source.R
+
 data  = read.csv("ATM_transactions_simulated.csv")
 dim(data) #total transactions 9610 
 
@@ -110,63 +112,8 @@ d1 = which(data$Day<=10)
 d11 = which(data$Day>=11 & data$Day<=20)
 d21 = which(data$Day>=21)
 
-dist1 = getmarginal(data$Amount_withdrawal[d1])
-dist11 = getmarginal(data$Amount_withdrawal[d11])
-dist21 = getmarginal(data$Amount_withdrawal[d21])
+dist1 = find.marginal(x=as.numeric(data$Amount_withdrawal[d1]),"BIC")
+dist11 = find.marginal(as.numeric(data$Amount_withdrawal[d11]),"BIC")
+dist21 = find.marginal(as.numeric(data$Amount_withdrawal[d21]),"BIC")
 
 
-"
-Currently the function is using fitdistplus. Target is to use fitdistr only.
-"
-
-## Function to find best fit marginal distribution from "exponential","gamma","chi-squared","log-normal","weibull".
-find.marginal = function(x,criteria){
-  n=length(x)
-  suppressWarnings({
-  if(n>1 & class(x)=="numeric"){
-    dist = c("exponential","gamma","chi-squared","log-normal","weibull")
-    aic_vec = c()
-    bic_vec = c()
-    for(i in 1:length(dist)){
-      if(dist[i]=="chi-squared"){
-        strlist = list(df=mean(x))
-        k = length(strlist)
-        fit = fitdistr(x,densfun = dist[i],start = strlist)
-        aic_vec[i] = 2*(k-fit$loglik)
-        bic_vec[i] = k*log(n)-2*fit$loglik
-      }else{
-        fit = fitdistr(x,densfun = dist[i])
-        k = length(fit$estimate)
-        aic_vec[i] = 2*(k-fit$loglik)
-        bic_vec[i] = k*log(n)-2*fit$loglik
-      }
-    }
-    if(class(criteria)=="character"){
-    if(criteria=="AIC"){
-      if(dist[which.min(aic_vec)]=="chi-squared"){
-        strlist = list(df=mean(x))  
-        fit = fitdistr(x,densfun = dist[which.min(aic_vec)],start = strlist)
-        return(list(dist[which.min(aic_vec)],fit$estimate))
-      }else{
-        fit = fitdistr(x,densfun = dist[which.min(aic_vec)])
-        return(list(dist[which.min(aic_vec)],fit$estimate))
-      }
-    }else{
-      if(dist[which.min(bic_vec)]=="chi-squared"){
-        strlist = list(df=mean(x))  
-        fit = fitdistr(x,densfun = dist[which.min(bic_vec)],start = strlist)
-        return(list(dist[which.min(bic_vec)],fit$estimate))
-      }else{
-        fit = fitdistr(x,densfun = dist[which.min(bic_vec)])
-        return(list(dist[which.min(bic_vec)],fit$estimate))
-      }
-    }
-  }else(paste("Expected criteria is not character object."))  
-  }else(paste("vector length must > 1 OR class is not numeric."))
-  })
-}
-
-y = rexp(1000,4)
-
-
-find.marginal(y,"BIC")

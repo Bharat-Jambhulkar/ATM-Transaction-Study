@@ -13,10 +13,11 @@ ArrivalTimeFun = function(T0,lambda){
 
 ## Function to find best fit marginal distribution from "exponential","gamma","chi-squared","log-normal","weibull".
 find.marginal = function(x,criteria){
+  library(MASS)
   n=length(x)
   suppressWarnings({
     if(n>1 & class(x)=="numeric"){
-      dist = c("exponential","gamma","chi-squared","log-normal","weibull")
+      dist = c("exponential","chi-squared","log-normal","weibull")
       aic_vec = c()
       bic_vec = c()
       for(i in 1:length(dist)){
@@ -56,8 +57,7 @@ find.marginal = function(x,criteria){
       }else(paste("Expected criteria is not character object."))  
     }else(paste("vector length must > 1 OR class is not numeric."))
   })
-}
-
+} ##Removed gamma
 ## Function to calculate the number of transaction after which ATM needs to refill.
 
 timeFun = function(x,limit){
