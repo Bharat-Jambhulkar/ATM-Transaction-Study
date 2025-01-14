@@ -116,4 +116,41 @@ dist1 = find.marginal(x=as.numeric(data$Amount_withdrawal[d1]),"BIC")
 dist11 = find.marginal(as.numeric(data$Amount_withdrawal[d11]),"BIC")
 dist21 = find.marginal(as.numeric(data$Amount_withdrawal[d21]),"BIC")
 
+"
+To check the transactions w.r.t time. Find peak hours and non-peak hours
+"
+round_time = floor(data$Time)
+table(round_time)
+barplot(table(round_time))
+TT=table(round_time,data[,1])
+View(TT)
+boxplot(TT~sort(unique(round_time)),col=(c(rep(5,9),rep(7,12),rep(5,3))),main="Customer Arrival",xlab="Time",ylab="Count")
+
+
+t = as.data.frame(table(round_time,data[,1]))
+
+freq = t$Freq
+
+hrs = c(0,9,15,21)
+
+w1 = which(t$round_time==hrs[1])
+plot(density(freq[w1]),lwd=2,col=1,xlim=c(-2,40),main = "Density Plot",xlab="Count")
+
+for(i in 2:length(hrs)){
+  w1 = which(t$round_time==hrs[i])
+  lines(density(freq[w1]),lwd=2,col=i)
+}
+
+legend("topright",legend = c("0","9","15","21"),fill = 1:4)
+
+"
+Number of customers visiting ATM can be treated as a Poisson r.v. Estimate rate which is mean count.
+"
+
+lvec = c()
+w1 = which(round_time<9 | round_time>=21)       
+lvec[1] = mean(table(round_time[w1]))/(30*60)
+
+w2 = which(round_time>=9 & round_time<21) 
+lvec[2] = mean(table(round_time[w2]))/(30*60) #arrival rate per minute
 
