@@ -3,7 +3,7 @@
 ## Also we will deal with problem of how often we should refill the machine
 ## with cash 
 
-source("source.R") #Import functions to written in source.R
+source("source.R") #Import functions written in source.R
 
 data  = read.csv("ATM_transactions_simulated.csv")
 dim(data) #total transactions 9610 
@@ -116,6 +116,22 @@ dist1 = find.marginal(x=as.numeric(data$Amount_withdrawal[d1]),"BIC")
 dist11 = find.marginal(as.numeric(data$Amount_withdrawal[d11]),"BIC")
 dist21 = find.marginal(as.numeric(data$Amount_withdrawal[d21]),"BIC")
 
+
+"
+Testing goodness of fit
+"
+
+ks.test(data$Amount_withdrawal[d21],"plnorm",meanlog=dist21[[2]][1],sdlog= dist21[[2]][2],alternative = "two.sided") #Reject H0: Sample is not from log-normal dist.
+
+ks.test(data$Amount_withdrawal[d1],"plnorm",meanlog=dist1[[2]][1],sdlog= dist1[[2]][2],alternative = "two.sided") #Reject H0: Sample is not from log-normal dist.
+
+ks.test(data$Amount_withdrawal[d11],"plnorm",meanlog=dist11[[2]][1],sdlog= dist11[[2]][2],alternative = "two.sided") #Reject H0: Sample is not from log-normal dist.
+
+
+"
+Testing is not supporting the initial guess. 
+"
+
 "
 To check the transactions w.r.t time. Find peak hours and non-peak hours
 "
@@ -154,3 +170,19 @@ lvec[1] = mean(table(round_time[w1]))/(30*60)
 w2 = which(round_time>=9 & round_time<21) 
 lvec[2] = mean(table(round_time[w2]))/(30*60) #arrival rate per minute
 
+
+sample_data = data$Amount_withdrawal[d1]
+theoretical_quantiles <- plnorm(ppoints(length(sample_data)), meanlog = dist1[[2]][1],sdlog= dist1[[2]][2])
+
+# Sort the sample data to get empirical quantiles
+empirical_quantiles <- sort(sample_data)
+
+# Plot the QQ plot
+plot(empirical_quantiles,theoretical_quantiles,
+     main = "QQ Plot Against Lognormal Distribution",
+     xlab = "Theoretical Quantiles",
+     ylab = "Empirical Quantiles",
+     pch = 19, col = "blue")
+
+# Add a reference line
+abline(0, 1, col = "red", lwd = 2)
