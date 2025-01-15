@@ -13,6 +13,8 @@ Added T_to_refill.R to get the number of transactions till the next refill is ne
 
 Updated code to find the hours required to refill the machine.
 
+An update was added to identify peak and non-peak transaction hours.  
+
 Next, I have two targets: 1) Create a good report of this study. 2) Write clean code where all functions will be in one place and then the analysis part. 
 
 Report link: https://www.overleaf.com/project/6784c099ff49f92479b7fd36
